@@ -1,4 +1,4 @@
-import {GetAtt} from '../../../src/libs/utils'
+import {GetAtt} from '@libs/utils'
 
 describe('GetAtt', () => {
   it('Should output correct CloudFormation JSON format', () => {
