@@ -47,8 +47,7 @@ input ProfileInput {
     backgroundImageUrl: AWSURL
     bio: String
     location: String
-    website: AWSURL
-    birthdate: AWSDate
+    website: AWSURL birthdate: AWSDate
 }
 
 interface IProfile {

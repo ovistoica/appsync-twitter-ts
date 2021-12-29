@@ -1,6 +1,12 @@
 import {Context, PostConfirmationConfirmSignUpTriggerEvent} from 'aws-lambda'
-import AWS from 'aws-sdk'
-import {main as handler} from '../../src/functions/confirm-user-signup/handler'
+import {adminConfirmUser, createUser} from '@test/lib/cognito'
+import GraphQl from '@test/lib/graphql'
+import {main as handler} from '@functions/confirm-user-signup/handler'
+import fs from 'fs'
+import velocityTemplate from 'amplify-velocity-template'
+import {AuthenticatedUser, QueryGetMyProfile} from '@types'
+
+const velocityMapper = require('amplify-appsync-simulator/lib/velocity/value-mapper/mapper')
 
 export const we_invoke_confirmUserSignup = async (
   username: string,
@@ -53,34 +59,74 @@ export const a_user_signs_up = async (
   name: string,
   email: string,
 ) => {
-  const cognito = new AWS.CognitoIdentityServiceProvider()
-
   const {COGNITO_USER_POOL_ID, WEB_COGNITO_USER_POOL_CLIENT_ID} = process.env
 
   if (!COGNITO_USER_POOL_ID || !WEB_COGNITO_USER_POOL_CLIENT_ID) {
     throw new Error('Invalid env variables provided to a_user_signs_up')
   }
 
-  const signUpResp = await cognito
-    .signUp({
-      ClientId: WEB_COGNITO_USER_POOL_CLIENT_ID,
-      Username: email,
-      Password: password,
-      UserAttributes: [{Name: 'name', Value: name}],
-    })
-    .promise()
-
-  const username = signUpResp.UserSub
+  const username = await createUser(WEB_COGNITO_USER_POOL_CLIENT_ID, {
+    name,
+    email,
+    password,
+  })
   console.log(`[${email}] - user has signed up [${username}]`)
 
-  await cognito
-    .adminConfirmSignUp({
-      UserPoolId: COGNITO_USER_POOL_ID,
-      Username: username,
-    })
-    .promise()
+  await adminConfirmUser(COGNITO_USER_POOL_ID, username)
 
   console.log(`[${email}] - confirmed sign up`)
 
   return {username, name, email}
+}
+
+export const we_invoke_an_appsync_template = (
+  templatePath: string,
+  context: any,
+) => {
+  const template = fs.readFileSync(templatePath, {encoding: 'utf-8'})
+  const ast = velocityTemplate.parse(template)
+  const compiler = new velocityTemplate.Compile(ast, {
+    valueMapper: velocityMapper.map,
+    escape: false,
+  })
+
+  return compiler.render(context)
+}
+
+export const a_user_calls_getMyProfile = async (user: AuthenticatedUser) => {
+  const getMyProfile = `query MyQuery {
+  getMyProfile {
+    bio
+    birthdate
+    createdAt
+    followersCount
+    followingCount
+    id
+    likesCounts
+    location
+    name
+    screenName
+    tweetsCount
+    website
+    backgroundImageUrl
+    imageUrl
+  }
+}`
+  const {API_URL: url} = process.env
+  if (!url) {
+    throw new Error('Invalid API_URL provided to a_user_calls_getMyProfile')
+  }
+
+  const data = await GraphQl<QueryGetMyProfile>({
+    url,
+    auth: user.accessToken,
+    variables: {},
+    query: getMyProfile,
+  })
+
+  const profile = data.getMyProfile
+
+  console.log(`[${user.username}] - fetched profile`)
+
+  return profile
 }

@@ -1,8 +1,8 @@
 require('dotenv').config()
 
-import * as given from '../../steps/given'
-import * as when from '../../steps/when'
-import * as then from '../../steps/then'
+import * as given from '@test/steps/given'
+import * as when from '@test/steps/when'
+import * as then from '@test/steps/then'
 
 describe('When a user signs up', () => {
   it("The user's profile should be saved in DynamoDB", async () => {

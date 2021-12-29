@@ -24,7 +24,7 @@ export const appsyncConfig = {
       type: 'AMAZON_DYNAMODB',
       name: 'usersTable',
       config: {
-        tableName: 'UsersTable',
+        tableName: {Ref: 'UsersTable'},
       },
     },
   ],

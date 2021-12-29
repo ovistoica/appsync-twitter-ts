@@ -1,5 +1,5 @@
 import type {AWS} from '@serverless/typescript'
-import {appsyncConfig} from './serverless/appsync.api'
+import {appsyncConfig} from './serverless/appsync'
 import {dynamoDBResources} from './serverless/dynamodb'
 import {cognitoOutput, cognitoResources} from './serverless/cognito'
 import confirmUserSignup from '@functions/confirm-user-signup'
@@ -12,6 +12,7 @@ const serverlessConfiguration: AWS = {
     'serverless-appsync-plugin',
     'serverless-iam-roles-per-function',
     'serverless-export-env',
+    'serverless-manifest-plugin',
   ],
   provider: {
     name: 'aws',
