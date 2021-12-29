@@ -1,5 +1,5 @@
 import type {AWS} from '@serverless/typescript'
-import appsync from './serverless/appsync.api'
+import {appsyncConfig} from './serverless/appsync.api'
 import {dynamoDBResources} from './serverless/dynamodb'
 import {cognitoOutput, cognitoResources} from './serverless/cognito'
 import confirmUserSignup from '@functions/confirm-user-signup'
@@ -40,12 +40,12 @@ const serverlessConfiguration: AWS = {
       minify: false,
       sourcemap: true,
       exclude: ['aws-sdk'],
-      target: 'node14',
+      target: 'node12',
       define: {'require.resolve': undefined},
       platform: 'node',
       concurrency: 10,
     },
-    appsync,
+    appSync: {...appsyncConfig},
   },
   resources: {
     Resources: {

@@ -100,6 +100,7 @@ dist
 
 # DynamoDB Local files
 .dynamodb/
+.serverless/
 
 # TernJS port file
 .tern-port

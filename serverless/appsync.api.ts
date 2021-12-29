@@ -1,4 +1,4 @@
-export default {
+export const appsyncConfig = {
   name: 'appsync-twitter-api',
   schema: 'schema.api.graphql',
   authenticationType: 'AMAZON_COGNITO_USER_POOLS',
@@ -7,4 +7,25 @@ export default {
     defaultAction: 'ALLOW',
     userPoolId: {Ref: 'CognitoUserPool'},
   },
+  mappingTemplatesLocation: 'mapping-templates',
+  mappingTemplates: [
+    {
+      type: 'Query',
+      field: 'getMyProfile',
+      dataSource: 'usersTable',
+    },
+  ],
+  dataSources: [
+    {
+      type: 'NONE',
+      name: 'none',
+    },
+    {
+      type: 'AMAZON_DYNAMODB',
+      name: 'usersTable',
+      config: {
+        tableName: 'UsersTable',
+      },
+    },
+  ],
 }
