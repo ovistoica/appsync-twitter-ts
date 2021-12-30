@@ -1,7 +1,9 @@
 # Appsync masterclass typescript version
 
 This project contains the course files for the [Appsync Masterclass](https://appsyncmasterclass.com/) held by
-@theburningmonk
+[@theburningmonk](https://github.com/theburningmonk).
+
+You can find the original version of the project [here](https://github.com/theburningmonk/appsyncmasterclass-backend)
 
 This project has been generated using the `aws-nodejs-typescript` template from
 the [Serverless framework](https://www.serverless.com/).
