@@ -109,3 +109,12 @@ dist
 .idea
 
 .DS_Store
+
+# Ignore serverless manifest files
+serverless.manifest.json
+.serverless/manifest.json
+
+.lsp
+.clj-kondo
+
+.nrepl-port

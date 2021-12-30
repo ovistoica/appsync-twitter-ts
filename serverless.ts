@@ -38,7 +38,7 @@ const serverlessConfiguration: AWS = {
     stage: '${opt:stage, self:provider.stage}',
     esbuild: {
       bundle: true,
-      minify: false,
+      minify: true,
       sourcemap: true,
       exclude: ['aws-sdk'],
       target: 'node12',
@@ -47,6 +47,12 @@ const serverlessConfiguration: AWS = {
       concurrency: 10,
     },
     appSync: {...appsyncConfig},
+    manifest: {
+      postProcess: './scripts/processManifest.js',
+      disablePostDeployGeneration: true,
+      disableOutput: true,
+      silent: true,
+    },
   },
   resources: {
     Resources: {
