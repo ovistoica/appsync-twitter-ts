@@ -4,7 +4,7 @@ import GraphQl from '@test/lib/graphql'
 import {main as handler} from '@functions/confirm-user-signup/handler'
 import fs from 'fs'
 import velocityTemplate from 'amplify-velocity-template'
-import {AuthenticatedUser, QueryGetMyProfile} from '@types'
+import {AuthenticatedUser, MutationEditMyProfile, ProfileInput, QueryGetMyProfile} from '@types'
 
 const velocityMapper = require('amplify-appsync-simulator/lib/velocity/value-mapper/mapper')
 
@@ -127,6 +127,49 @@ export const a_user_calls_getMyProfile = async (user: AuthenticatedUser) => {
   const profile = data.getMyProfile
 
   console.log(`[${user.username}] - fetched profile`)
+
+  return profile
+}
+
+export const a_user_calls_editMyProfile = async (
+  user: AuthenticatedUser,
+  input: ProfileInput,
+) => {
+  const getMyProfile = `mutation editMyProfile($input: ProfileInput!) {
+  editMyProfile(newProfile: $input) {
+    bio
+    birthdate
+    createdAt
+    followersCount
+    followingCount
+    id
+    likesCounts
+    location
+    name
+    screenName
+    tweetsCount
+    website
+    backgroundImageUrl
+    imageUrl
+  }
+}`
+  const {API_URL: url} = process.env
+  if (!url) {
+    throw new Error('Invalid API_URL provided to a_user_calls_getMyProfile')
+  }
+
+  const variables = {input}
+
+  const data = await GraphQl<MutationEditMyProfile>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: getMyProfile,
+  })
+
+  const profile = data.editMyProfile
+
+  console.log(`[${user.username}] - edited profile`)
 
   return profile
 }

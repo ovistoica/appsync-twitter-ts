@@ -85,6 +85,10 @@ export type QueryGetMyProfile = {
   getMyProfile: MyProfile
 }
 
+export type MutationEditMyProfile = {
+  editMyProfile: MyProfile
+}
+
 export type QueryGetImageUploadUrlArgs = {
   extension?: Maybe<Scalars['String']>
   contentType?: Maybe<Scalars['String']>

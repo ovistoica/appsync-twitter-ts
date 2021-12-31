@@ -14,6 +14,11 @@ export const appsyncConfig = {
       field: 'getMyProfile',
       dataSource: 'usersTable',
     },
+    {
+      type: 'Mutation',
+      field: 'editMyProfile',
+      dataSource: 'usersTable',
+    },
   ],
   dataSources: [
     {

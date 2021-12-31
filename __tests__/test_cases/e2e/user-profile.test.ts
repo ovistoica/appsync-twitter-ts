@@ -2,16 +2,20 @@ require('dotenv').config()
 
 import * as given from '@test/steps/given'
 import * as when from '@test/steps/when'
-import {AuthenticatedUser, MyProfile} from '@types'
+import {AuthenticatedUser, MyProfile, ProfileInput} from '@types'
+import {Chance} from 'chance'
 
 describe('Given an authenticated user', () => {
   let user: AuthenticatedUser
+  let chance: Chance.Chance
+  let profile: MyProfile
   beforeAll(async () => {
     user = await given.an_authenticated_user()
+    chance = new Chance()
   })
 
   test('The user can fetch his profile with getMyProfile', async () => {
-    const profile: MyProfile = await when.a_user_calls_getMyProfile(user)
+    profile = await when.a_user_calls_getMyProfile(user)
 
     expect(profile).toMatchObject({
       id: user.username,
@@ -34,5 +38,21 @@ describe('Given an authenticated user', () => {
     const [firstName, lastName] = user.name.split(' ')
     expect(profile.screenName).toContain(firstName)
     expect(profile.screenName).toContain(lastName)
+  })
+
+  test('The user can edit his profile with editMyProfile', async () => {
+    const newName = chance.first()
+    const input: ProfileInput = {
+      name: newName,
+    }
+    const newProfile: MyProfile = await when.a_user_calls_editMyProfile(
+      user,
+      input,
+    )
+
+    expect(newProfile).toMatchObject({
+      ...profile,
+      name: newName,
+    })
   })
 })
