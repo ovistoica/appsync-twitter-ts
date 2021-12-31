@@ -9,7 +9,7 @@ echo "Generating bundle..."
 npm run package
 
 echo "Unzipping bundle ..."
-unzip -o .serverless/*.zip
+unzip -o .serverless/\*.zip
 
 echo "Generating .env file "
 

@@ -1,4 +1,32 @@
-export const appsyncConfig = {
+interface AppSyncMappingTemplate {
+  type: 'Query' | 'Mutation'
+  field: string
+  dataSource: string
+  request?: boolean
+  response?: boolean
+}
+
+interface AppSyncDataSource {
+  type: 'NONE' | 'AMAZON_DYNAMODB' | 'AWS_LAMBDA'
+  name: string
+  config?: Record<string, unknown>
+}
+
+interface AppSyncConfig {
+  name: string
+  schema: string
+  authenticationType: 'AMAZON_COGNITO_USER_POOLS'
+  userPoolConfig?: {
+    awsRegion: 'eu-central-1'
+    defaultAction: 'ALLOW'
+    userPoolId: {Ref: string}
+  }
+  mappingTemplatesLocation?: string
+  mappingTemplates: AppSyncMappingTemplate[]
+  dataSources: AppSyncDataSource[]
+}
+
+export const appsyncConfig: AppSyncConfig = {
   name: 'appsync-twitter-api',
   schema: 'schema.api.graphql',
   authenticationType: 'AMAZON_COGNITO_USER_POOLS',
@@ -19,6 +47,13 @@ export const appsyncConfig = {
       field: 'editMyProfile',
       dataSource: 'usersTable',
     },
+    {
+      type: 'Query',
+      field: 'getImageUploadUrl',
+      dataSource: 'getImageUploadUrlFunction',
+      request: false,
+      response: false,
+    },
   ],
   dataSources: [
     {
@@ -30,6 +65,13 @@ export const appsyncConfig = {
       name: 'usersTable',
       config: {
         tableName: {Ref: 'UsersTable'},
+      },
+    },
+    {
+      type: 'AWS_LAMBDA',
+      name: 'getImageUploadUrlFunction',
+      config: {
+        functionName: 'getImageUploadUrl',
       },
     },
   ],

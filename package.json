@@ -19,7 +19,8 @@
   "dependencies": {
     "@middy/core": "^2.5.3",
     "@middy/http-json-body-parser": "^2.5.3",
-    "chance": "^1.1.8"
+    "chance": "^1.1.8",
+    "ulid": "^2.3.0"
   },
   "devDependencies": {
     "@serverless/typescript": "^2.23.0",

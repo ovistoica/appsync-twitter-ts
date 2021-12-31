@@ -1,10 +1,18 @@
 import {Context, PostConfirmationConfirmSignUpTriggerEvent} from 'aws-lambda'
 import {adminConfirmUser, createUser} from '@test/lib/cognito'
 import GraphQl from '@test/lib/graphql'
-import {main as handler} from '@functions/confirm-user-signup/handler'
+import {main as configUserSignupHandler} from '@functions/confirm-user-signup/handler'
+import {main as getImageUploadUrlHandler} from '@functions/get-upload-url/handler'
 import fs from 'fs'
 import velocityTemplate from 'amplify-velocity-template'
-import {AuthenticatedUser, MutationEditMyProfile, ProfileInput, QueryGetMyProfile} from '@types'
+import {
+  AuthenticatedUser,
+  MutationEditMyProfile,
+  ProfileInput,
+  QueryGetImageUploadUrl,
+  QueryGetImageUploadUrlArgs,
+  QueryGetMyProfile,
+} from '@types'
 
 const velocityMapper = require('amplify-appsync-simulator/lib/velocity/value-mapper/mapper')
 
@@ -39,7 +47,7 @@ export const we_invoke_confirmUserSignup = async (
     response: {},
   }
 
-  await handler(
+  await configUserSignupHandler(
     event as unknown as PostConfirmationConfirmSignUpTriggerEvent,
     context as unknown as Context,
     (error, result) => {
@@ -135,7 +143,7 @@ export const a_user_calls_editMyProfile = async (
   user: AuthenticatedUser,
   input: ProfileInput,
 ) => {
-  const getMyProfile = `mutation editMyProfile($input: ProfileInput!) {
+  const editMyProfile = `mutation editMyProfile($input: ProfileInput!) {
   editMyProfile(newProfile: $input) {
     bio
     birthdate
@@ -164,7 +172,7 @@ export const a_user_calls_editMyProfile = async (
     url,
     auth: user.accessToken,
     variables,
-    query: getMyProfile,
+    query: editMyProfile,
   })
 
   const profile = data.editMyProfile
@@ -172,4 +180,54 @@ export const a_user_calls_editMyProfile = async (
   console.log(`[${user.username}] - edited profile`)
 
   return profile
+}
+
+export const we_invoke_getImageUploadUrl = async (
+  username: string,
+  extension: string,
+  contentType: string,
+) => {
+  const context = {}
+  const event = {
+    identity: {username},
+    arguments: {
+      extension,
+      contentType,
+    },
+  }
+
+  return getImageUploadUrlHandler(
+    event,
+    context as unknown as Context,
+    error => {
+      if (error) {
+        console.log(JSON.stringify(error))
+      }
+    },
+  )
+}
+
+export const a_user_calls_getImageUploadUrl = async (
+  user: AuthenticatedUser,
+  extension: string,
+  contentType: string,
+) => {
+  const getImageUploadUrl = `query getImageUploadUrl($extension: String!, $contentType: String!) { 
+    getImageUploadUrl(extension: $extension, contentType: $contentType)
+    }`
+
+  const variables: QueryGetImageUploadUrlArgs = {extension, contentType}
+
+  const {API_URL: url} = process.env
+
+  const data = await GraphQl<QueryGetImageUploadUrl>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: getImageUploadUrl,
+  })
+
+  console.log(`[${user.username}] - got image upload url`)
+
+  return data.getImageUploadUrl
 }

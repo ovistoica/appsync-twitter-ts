@@ -2,6 +2,8 @@ require('dotenv').config()
 
 import * as given from '@test/steps/given'
 import * as when from '@test/steps/when'
+import * as then from '@test/steps/then'
+import * as path from 'path'
 import {AuthenticatedUser, MyProfile, ProfileInput} from '@types'
 import {Chance} from 'chance'
 
@@ -38,6 +40,27 @@ describe('Given an authenticated user', () => {
     const [firstName, lastName] = user.name.split(' ')
     expect(profile.screenName).toContain(firstName)
     expect(profile.screenName).toContain(lastName)
+  })
+
+  test('User can get an url to upload a new profile image', async () => {
+    const extension = '.png'
+    const contentType = 'image/png'
+    const filePath = path.join(__dirname, '../../data/test-profile-pic.png')
+    const uploadUrl = await when.a_user_calls_getImageUploadUrl(
+      user,
+      extension,
+      contentType,
+    )
+
+    const {BUCKET_NAME: bucketName} = process.env
+    const regex = new RegExp(
+      `https://${bucketName}.s3-accelerate.amazonaws.com/${user.username}/.*${extension}\?.*`,
+    )
+    expect(uploadUrl).toMatch(regex)
+    await then.user_can_upload_image_to_url(uploadUrl, filePath, contentType)
+
+    const [downloadUrl] = uploadUrl.split('?')
+    await then.user_can_download_image_from(downloadUrl)
   })
 
   test('The user can edit his profile with editMyProfile', async () => {

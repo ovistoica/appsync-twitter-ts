@@ -2,7 +2,8 @@ import type {AWS} from '@serverless/typescript'
 import {appsyncConfig} from './serverless/appsync'
 import {dynamoDBResources} from './serverless/dynamodb'
 import {cognitoOutput, cognitoResources} from './serverless/cognito'
-import confirmUserSignup from '@functions/confirm-user-signup'
+import {s3Outputs, s3Resources} from './serverless/s3'
+import {functionsConfig} from '@functions/index'
 
 const serverlessConfiguration: AWS = {
   service: 'appsync-twitter',
@@ -31,7 +32,7 @@ const serverlessConfiguration: AWS = {
     lambdaHashingVersion: '20201221',
   },
   // import the function via paths
-  functions: {confirmUserSignup},
+  functions: {...functionsConfig},
   package: {individually: true},
   custom: {
     region: '${opt:region, self:provider.region}',
@@ -58,10 +59,12 @@ const serverlessConfiguration: AWS = {
     Resources: {
       ...dynamoDBResources,
       ...cognitoResources,
+      ...s3Resources,
     },
     Outputs: {
       AwsRegion: {Value: '${self:custom.region}'},
       ...cognitoOutput,
+      ...s3Outputs,
     },
   },
 }
