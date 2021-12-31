@@ -310,3 +310,9 @@ export interface AuthenticatedUser {
   idToken: string
   accessToken: string
 }
+
+export enum TweetType {
+  TWEET = 'Tweet',
+  RETWEET = 'Retweet',
+  REPLY = 'Reply',
+}

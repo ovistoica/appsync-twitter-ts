@@ -2,8 +2,8 @@ interface AppSyncMappingTemplate {
   type: 'Query' | 'Mutation'
   field: string
   dataSource: string
-  request?: boolean
-  response?: boolean
+  request?: false
+  response?: false
 }
 
 interface AppSyncDataSource {
@@ -54,6 +54,13 @@ export const appsyncConfig: AppSyncConfig = {
       request: false,
       response: false,
     },
+    {
+      type: 'Mutation',
+      field: 'tweet',
+      dataSource: 'tweetFunction',
+      request: false,
+      response: false,
+    },
   ],
   dataSources: [
     {
@@ -72,6 +79,13 @@ export const appsyncConfig: AppSyncConfig = {
       name: 'getImageUploadUrlFunction',
       config: {
         functionName: 'getImageUploadUrl',
+      },
+    },
+    {
+      type: 'AWS_LAMBDA',
+      name: 'tweetFunction',
+      config: {
+        functionName: 'tweet',
       },
     },
   ],
