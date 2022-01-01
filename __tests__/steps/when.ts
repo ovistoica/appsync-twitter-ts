@@ -3,6 +3,7 @@ import {adminConfirmUser, createUser} from '@test/lib/cognito'
 import GraphQl from '@test/lib/graphql'
 import {main as configUserSignupHandler} from '@functions/confirm-user-signup/handler'
 import {main as getImageUploadUrlHandler} from '@functions/get-upload-url/handler'
+import {main as tweetHandler} from '@functions/tweet/handler'
 import fs from 'fs'
 import velocityTemplate from 'amplify-velocity-template'
 import {
@@ -230,4 +231,19 @@ export const a_user_calls_getImageUploadUrl = async (
   console.log(`[${user.username}] - got image upload url`)
 
   return data.getImageUploadUrl
+}
+
+export const we_invoke_tweet = async (username: string, text: string) => {
+  const context = {}
+  const event = {
+    identity: {username},
+    arguments: {
+      text,
+    },
+  }
+  return tweetHandler(event, context as unknown as Context, error => {
+    if (error) {
+      console.log(JSON.stringify(error))
+    }
+  })
 }

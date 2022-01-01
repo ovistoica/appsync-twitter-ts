@@ -15,8 +15,7 @@ interface TweetHandlerEvent {
 }
 
 const handler: Handler<TweetHandlerEvent> = async event => {
-  const {USERS_TABLE_NAME, TWEETS_TABLE_NAME, TIMELINES_TABLE_NAME} =
-    process.env
+  const {USERS_TABLE, TWEETS_TABLE, TIMELINES_TABLE} = process.env
   const {username} = event.identity
   const {text} = event.arguments
   const id = ulid.ulid()
@@ -37,13 +36,13 @@ const handler: Handler<TweetHandlerEvent> = async event => {
     TransactItems: [
       {
         Put: {
-          TableName: TWEETS_TABLE_NAME,
+          TableName: TWEETS_TABLE,
           Item: newTweet,
         },
       },
       {
         Put: {
-          TableName: TIMELINES_TABLE_NAME,
+          TableName: TIMELINES_TABLE,
           Item: {
             userId: username,
             tweetId: id,
@@ -53,7 +52,7 @@ const handler: Handler<TweetHandlerEvent> = async event => {
       },
       {
         Update: {
-          TableName: USERS_TABLE_NAME,
+          TableName: USERS_TABLE,
           Key: {
             id: username,
           },

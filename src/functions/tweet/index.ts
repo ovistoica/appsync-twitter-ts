@@ -4,9 +4,9 @@ import {GetAtt} from '@libs/utils'
 export default {
   handler: `${handlerPath(__dirname)}/handler.main`,
   environment: {
-    USERS_TABLE_NAME: {Ref: 'UsersTable'},
-    TWEETS_TABLE_NAME: {Ref: 'TweetsTable'},
-    TIMELINES_TABLE_NAME: {Ref: 'TimelinesTable'},
+    USERS_TABLE: {Ref: 'UsersTable'},
+    TWEETS_TABLE: {Ref: 'TweetsTable'},
+    TIMELINES_TABLE: {Ref: 'TimelinesTable'},
   },
   iamRoleStatements: [
     {
