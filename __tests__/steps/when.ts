@@ -8,7 +8,8 @@ import fs from 'fs'
 import velocityTemplate from 'amplify-velocity-template'
 import {
   AuthenticatedUser,
-  MutationEditMyProfile, MutationTweet,
+  MutationEditMyProfile,
+  MutationTweet,
   ProfileInput,
   QueryGetImageUploadUrl,
   QueryGetImageUploadUrlArgs,
@@ -99,7 +100,7 @@ export const we_invoke_an_appsync_template = (
     escape: false,
   })
 
-  return compiler.render(context)
+  return JSON.parse(compiler.render(context))
 }
 
 export const a_user_calls_getMyProfile = async (user: AuthenticatedUser) => {

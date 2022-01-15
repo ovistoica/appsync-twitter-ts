@@ -19,13 +19,13 @@ export const aRandomUser = () => {
   return {email, password, name}
 }
 
-export const an_appsync_context = (identity: {username: string}, args: any) => {
+export const an_appsync_context = (identity: {username: string}, args: any, result?: any) => {
   const util = velocityUtil.create([], new Date(), Object(), {
     headers: {},
     requestAuthorizationMode:
       AmplifyAppSyncSimulatorAuthenticationType.AMAZON_COGNITO_USER_POOLS,
   })
-  const context = {identity, args, arguments: args}
+  const context = {identity, args, arguments: args, result}
   return {context, ctx: context, util, utils: util}
 }
 

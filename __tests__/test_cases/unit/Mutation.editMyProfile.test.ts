@@ -1,55 +1,70 @@
-import * as given from '@test/steps/given'
-import * as when from '@test/steps/when'
-import path from 'path'
-
-import {Chance} from 'chance'
-
-const chance = new Chance()
+const given = require('../../steps/given')
+const when = require('../../steps/when')
+const chance = require('chance').Chance()
+const path = require('path')
 
 describe('Mutation.editMyProfile.request template', () => {
-  it('Should use newProfile fields in expressionValues ', () => {
+  it("Should use 'newProfile' fields in expression values", () => {
     const templatePath = path.resolve(
       __dirname,
       '../../../mapping-templates/Mutation.editMyProfile.request.vtl',
     )
-    const newProfile = {
-      name: 'Test',
-      bio: 'This is me',
-      location: 'At home chilling',
-      website: 'https://designvote.io',
-      birthdate: Date.now(),
-    }
+
     const username = chance.guid()
+    const newProfile = {
+      name: 'Yan',
+      imageUrl: null,
+      backgroundImageUrl: null,
+      bio: 'test',
+      location: null,
+      website: null,
+      birthdate: null,
+    }
     const context = given.an_appsync_context({username}, {newProfile})
     const result = when.we_invoke_an_appsync_template(templatePath, context)
 
-    expect(result).toMatchInlineSnapshot(`
-      "{
-        \\"version\\" : \\"2018-05-29\\",
-        \\"operation\\" : \\"UpdateItem\\",
-        \\"key\\": {
-          \\"id\\" : {\\"S\\":\\"${username}\\"}
+    expect(result).toEqual({
+      version: '2018-05-29',
+      operation: 'UpdateItem',
+      key: {
+        id: {
+          S: username,
         },
-        \\"update\\" : {
-          \\"expression\\" : \\"set #name = :name, imageUrl = :imageUrl, backgroundImageUrl = :backgroundImageUrl, bio = :bio, #location = :location, website = :website, birthdate = :birthdate\\",
-          \\"expressionNames\\" : {
-            \\"#name\\" : \\"name\\",
-            \\"#location\\" : \\"location\\"
+      },
+      update: {
+        expression:
+          'set #name = :name, imageUrl = :imageUrl, backgroundImageUrl = :backgroundImageUrl, bio = :bio, #location = :location, website = :website, birthdate = :birthdate',
+        expressionNames: {
+          '#name': 'name',
+          '#location': 'location',
+        },
+        expressionValues: {
+          ':name': {
+            S: 'Yan',
           },
-          \\"expressionValues\\" : {
-            \\":name\\" : {\\"S\\":\\"${newProfile.name}\\"},
-            \\":imageUrl\\" : $util.dynamodb.toDynamoDBJson($context.arguments.newProfile.imageUrl),
-            \\":backgroundImageUrl\\" : $util.dynamodb.toDynamoDBJson($context.arguments.newProfile.backgroundImageUrl),
-            \\":bio\\" : {\\"S\\":\\"${newProfile.bio}\\"},
-            \\":location\\" : {\\"S\\":\\"${newProfile.location}\\"},
-            \\":website\\" : {\\"S\\":\\"${newProfile.website}\\"},
-            \\":birthdate\\" : {\\"N\\":\\"${newProfile.birthdate}\\"}
-          }
+          ':imageUrl': {
+            NULL: true,
+          },
+          ':backgroundImageUrl': {
+            NULL: true,
+          },
+          ':bio': {
+            S: 'test',
+          },
+          ':location': {
+            NULL: true,
+          },
+          ':website': {
+            NULL: true,
+          },
+          ':birthdate': {
+            NULL: true,
+          },
         },
-        \\"condition\\" : {
-          \\"expression\\" : \\"attribute_exists(id)\\"
-        }
-      }"
-    `)
+      },
+      condition: {
+        expression: 'attribute_exists(id)',
+      },
+    })
   })
 })
