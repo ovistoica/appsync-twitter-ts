@@ -93,6 +93,10 @@ export type MutationEditMyProfile = {
   editMyProfile: MyProfile
 }
 
+export type MutationTweet = {
+  tweet: Tweet
+}
+
 export type QueryGetImageUploadUrlArgs = {
   extension?: Maybe<Scalars['String']>
   contentType?: Maybe<Scalars['String']>

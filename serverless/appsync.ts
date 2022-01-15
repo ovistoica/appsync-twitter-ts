@@ -1,5 +1,5 @@
 interface AppSyncMappingTemplate {
-  type: 'Query' | 'Mutation'
+  type: 'Query' | 'Mutation' | 'Tweet'
   field: string
   dataSource: string
   request?: false
@@ -61,6 +61,18 @@ export const appsyncConfig: AppSyncConfig = {
       request: false,
       response: false,
     },
+    {
+      type: 'Query',
+      field: 'getTweets',
+      dataSource: 'tweetsTable',
+    },
+
+    /* NESTED FIELDS */
+    {
+      type: 'Tweet',
+      field: 'profile',
+      dataSource: 'usersTable',
+    },
   ],
   dataSources: [
     {
@@ -72,6 +84,13 @@ export const appsyncConfig: AppSyncConfig = {
       name: 'usersTable',
       config: {
         tableName: {Ref: 'UsersTable'},
+      },
+    },
+    {
+      type: 'AMAZON_DYNAMODB',
+      name: 'tweetsTable',
+      config: {
+        tableName: {Ref: 'TweetsTable'},
       },
     },
     {

@@ -8,7 +8,7 @@ import fs from 'fs'
 import velocityTemplate from 'amplify-velocity-template'
 import {
   AuthenticatedUser,
-  MutationEditMyProfile,
+  MutationEditMyProfile, MutationTweet,
   ProfileInput,
   QueryGetImageUploadUrl,
   QueryGetImageUploadUrlArgs,
@@ -246,4 +246,36 @@ export const we_invoke_tweet = async (username: string, text: string) => {
       console.log(JSON.stringify(error))
     }
   })
+}
+
+export const a_user_calls_tweet = async (
+  user: AuthenticatedUser,
+  text: string,
+) => {
+  const tweet = `mutation tweet($text: String!) { 
+    tweet(text: $text) {
+       id
+       createdAt
+       text
+       replies
+       likes
+       retweets
+    }
+    }`
+
+  const {API_URL: url} = process.env
+  const variables = {text}
+
+  const data = await GraphQl<MutationTweet>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: tweet,
+  })
+
+  const newTweet = data.tweet
+
+  console.log(`[${user.username}] - posted new tweet`)
+
+  return newTweet
 }
