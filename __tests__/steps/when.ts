@@ -14,6 +14,7 @@ import {
   QueryGetImageUploadUrl,
   QueryGetImageUploadUrlArgs,
   QueryGetMyProfile,
+  QueryGetTweets,
 } from '@types'
 
 const velocityMapper = require('amplify-appsync-simulator/lib/velocity/value-mapper/mapper')
@@ -104,24 +105,25 @@ export const we_invoke_an_appsync_template = (
 }
 
 export const a_user_calls_getMyProfile = async (user: AuthenticatedUser) => {
+  // language=GraphQL
   const getMyProfile = `query MyQuery {
-  getMyProfile {
-    bio
-    birthdate
-    createdAt
-    followersCount
-    followingCount
-    id
-    likesCounts
-    location
-    name
-    screenName
-    tweetsCount
-    website
-    backgroundImageUrl
-    imageUrl
-  }
-}`
+      getMyProfile {
+          bio
+          birthdate
+          createdAt
+          followersCount
+          followingCount
+          id
+          likesCounts
+          location
+          name
+          screenName
+          tweetsCount
+          website
+          backgroundImageUrl
+          imageUrl
+      }
+  }`
   const {API_URL: url} = process.env
   if (!url) {
     throw new Error('Invalid API_URL provided to a_user_calls_getMyProfile')
@@ -145,24 +147,25 @@ export const a_user_calls_editMyProfile = async (
   user: AuthenticatedUser,
   input: ProfileInput,
 ) => {
+  // language=GraphQL
   const editMyProfile = `mutation editMyProfile($input: ProfileInput!) {
-  editMyProfile(newProfile: $input) {
-    bio
-    birthdate
-    createdAt
-    followersCount
-    followingCount
-    id
-    likesCounts
-    location
-    name
-    screenName
-    tweetsCount
-    website
-    backgroundImageUrl
-    imageUrl
-  }
-}`
+      editMyProfile(newProfile: $input) {
+          bio
+          birthdate
+          createdAt
+          followersCount
+          followingCount
+          id
+          likesCounts
+          location
+          name
+          screenName
+          tweetsCount
+          website
+          backgroundImageUrl
+          imageUrl
+      }
+  }`
   const {API_URL: url} = process.env
   if (!url) {
     throw new Error('Invalid API_URL provided to a_user_calls_getMyProfile')
@@ -253,16 +256,22 @@ export const a_user_calls_tweet = async (
   user: AuthenticatedUser,
   text: string,
 ) => {
-  const tweet = `mutation tweet($text: String!) { 
-    tweet(text: $text) {
-       id
-       createdAt
-       text
-       replies
-       likes
-       retweets
-    }
-    }`
+  // language=GraphQL
+  const tweet = `mutation tweet($text: String!) {
+      tweet(text: $text) {
+          id
+          createdAt
+          text
+          replies
+          likes
+          retweets
+          profile {
+              id
+              name
+              screenName
+          }
+      }
+  }`
 
   const {API_URL: url} = process.env
   const variables = {text}
@@ -279,4 +288,52 @@ export const a_user_calls_tweet = async (
   console.log(`[${user.username}] - posted new tweet`)
 
   return newTweet
+}
+
+export const a_user_calls_getTweets = async ({
+  user,
+  userId,
+  limit,
+  nextToken,
+}: {
+  user: AuthenticatedUser
+  userId: string
+  limit: number
+  nextToken?: string | null
+}) => {
+  // language=GraphQL
+  const tweet = `query GetTweetsQUery($userId: ID!, $limit: Int!, $nextToken: String) {
+      getTweets(userId: $userId, limit: $limit, nextToken: $nextToken) {
+          nextToken
+          tweets {
+              profile {
+                  id
+                  name
+                  screenName
+              }
+              createdAt
+              id
+              ... on Tweet {
+                  id
+                  likes
+                  replies
+                  retweets
+                  text
+              }
+          }
+      }}`
+
+  const {API_URL: url} = process.env
+  const variables = {userId, limit, nextToken}
+
+  const data = await GraphQl<QueryGetTweets>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: tweet,
+  })
+
+  console.log(`[${user.username}] - requested tweets`)
+
+  return data.getTweets
 }

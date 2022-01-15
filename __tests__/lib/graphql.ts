@@ -1,11 +1,11 @@
 import http, {AxiosRequestHeaders} from 'axios'
-import get from 'lodash/get'
 
 interface Config {
   url: string
   query: string
   variables: any
   auth?: string
+  debug?: boolean
 }
 
 const throwOnErrors = ({
@@ -33,27 +33,26 @@ export default async function Graphql<TRet = any>({
   url,
   query,
   variables,
+  debug = false,
 }: Config): Promise<TRet> {
   const headers: AxiosRequestHeaders = {}
   if (auth) {
     headers.Authorization = auth
   }
 
-  try {
-    const resp = await http({
-      method: 'POST',
-      url,
-      headers,
-      data: {
-        query,
-        variables: JSON.stringify(variables),
-      },
-    })
-    const {data, errors} = resp.data
-    throwOnErrors({query, variables, errors})
-    return data
-  } catch (err) {
-    const errors = get(err, 'response.data.errors')
-    throwOnErrors({query, variables, errors})
+  const resp = await http({
+    method: 'POST',
+    url,
+    headers,
+    data: {
+      query,
+      variables: JSON.stringify(variables),
+    },
+  })
+  const {data, errors} = resp.data
+  if (debug) {
+    console.log('REQUEST FINISHED', JSON.stringify(resp.data))
   }
+  throwOnErrors({query, variables, errors})
+  return data
 }

@@ -89,6 +89,10 @@ export type QueryGetImageUploadUrl = {
   getImageUploadUrl: Scalars['AWSURL']
 }
 
+export type QueryGetTweets = {
+  getTweets: TweetsPage
+}
+
 export type MutationEditMyProfile = {
   editMyProfile: MyProfile
 }
