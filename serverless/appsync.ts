@@ -1,5 +1,5 @@
 interface AppSyncMappingTemplate {
-  type: 'Query' | 'Mutation' | 'Tweet'
+  type: 'Query' | 'Mutation' | 'Tweet' | 'TimelinePage'
   field: string
   dataSource: string
   request?: false
@@ -24,6 +24,7 @@ interface AppSyncConfig {
   mappingTemplatesLocation?: string
   mappingTemplates: AppSyncMappingTemplate[]
   dataSources: AppSyncDataSource[]
+  substitutions: {TweetsTable: {Ref: 'TweetsTable'}}
 }
 
 export const appsyncConfig: AppSyncConfig = {
@@ -66,12 +67,23 @@ export const appsyncConfig: AppSyncConfig = {
       field: 'getTweets',
       dataSource: 'tweetsTable',
     },
+    {
+      type: 'Query',
+      dataSource: 'timelinesTable',
+      field: 'getMyTimeline',
+    },
 
     /* NESTED FIELDS */
     {
       type: 'Tweet',
       field: 'profile',
       dataSource: 'usersTable',
+    },
+
+    {
+      type: 'TimelinePage',
+      field: 'tweets',
+      dataSource: 'tweetsTable',
     },
   ],
   dataSources: [
@@ -94,6 +106,13 @@ export const appsyncConfig: AppSyncConfig = {
       },
     },
     {
+      type: 'AMAZON_DYNAMODB',
+      name: 'timelinesTable',
+      config: {
+        tableName: {Ref: 'TimelinesTable'},
+      },
+    },
+    {
       type: 'AWS_LAMBDA',
       name: 'getImageUploadUrlFunction',
       config: {
@@ -108,4 +127,8 @@ export const appsyncConfig: AppSyncConfig = {
       },
     },
   ],
+
+  substitutions: {
+    TweetsTable: {Ref: 'TweetsTable'},
+  },
 }
