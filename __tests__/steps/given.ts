@@ -24,6 +24,7 @@ interface AppSyncContext {
   args: Record<string, unknown>
   result?: Record<string, unknown>
   source?: Record<string, unknown>
+  info?: Record<string, unknown>
 }
 
 export const an_appsync_context = ({
@@ -31,13 +32,14 @@ export const an_appsync_context = ({
   args,
   result,
   source,
+  info
 }: AppSyncContext) => {
   const util = velocityUtil.create([], new Date(), Object(), {
     headers: {},
     requestAuthorizationMode:
       AmplifyAppSyncSimulatorAuthenticationType.AMAZON_COGNITO_USER_POOLS,
   })
-  const context = {identity, args, arguments: args, result, source}
+  const context = {identity, args, arguments: args, result, source, info}
   return {context, ctx: context, util, utils: util}
 }
 
