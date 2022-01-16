@@ -13,7 +13,7 @@ describe('Query.getMyProfile.request template', () => {
       '../../../mapping-templates/Query.getMyProfile.request.vtl',
     )
     const username = chance.guid()
-    const context = given.an_appsync_context({username}, {})
+    const context = given.an_appsync_context({identity: {username}, args: {}})
     const result = when.we_invoke_an_appsync_template(templatePath, context)
 
     expect(result).toEqual({

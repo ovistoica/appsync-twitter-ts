@@ -13,10 +13,10 @@ describe('Query.getTweets.request template', () => {
       '../../../mapping-templates/Query.getTweets.request.vtl',
     )
     const username = chance.guid()
-    const context = given.an_appsync_context(
-      {username},
-      {userId: username, limit: 26, nextToken: null},
-    )
+    const context = given.an_appsync_context({
+      identity: {username},
+      args: {userId: username, limit: 26, nextToken: null},
+    })
     expect(() =>
       when.we_invoke_an_appsync_template(templatePath, context),
     ).toThrowError('max limit is 25')

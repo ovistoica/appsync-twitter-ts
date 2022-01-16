@@ -72,7 +72,7 @@ export type Rule = {
 export type Query = {
   __typename?: 'Query'
   getImageUploadUrl: Scalars['AWSURL']
-  getMyTimeline: TweetsPage
+  getMyTimeline: TimelinePage
   getMyProfile: MyProfile
   getProfile: OtherProfile
   getTweets: TweetsPage
@@ -91,6 +91,10 @@ export type QueryGetImageUploadUrl = {
 
 export type QueryGetTweets = {
   getTweets: TweetsPage
+}
+
+export type QueryGetMyTimeline = {
+  getMyTimeline: TimelinePage
 }
 
 export type MutationEditMyProfile = {
@@ -301,6 +305,12 @@ export type Retweet = ITweet & {
 
 export type TweetsPage = {
   __typename?: 'TweetsPage'
+  tweets?: Maybe<Array<ITweet>>
+  nextToken?: Maybe<Scalars['String']>
+}
+
+export type TimelinePage = {
+  __typename?: 'TimelinePage'
   tweets?: Maybe<Array<ITweet>>
   nextToken?: Maybe<Scalars['String']>
 }

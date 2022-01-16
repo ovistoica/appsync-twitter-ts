@@ -20,7 +20,10 @@ describe('Mutation.editMyProfile.request template', () => {
       website: null,
       birthdate: null,
     }
-    const context = given.an_appsync_context({username}, {newProfile})
+    const context = given.an_appsync_context({
+      identity: {username},
+      args: {newProfile},
+    })
     const result = when.we_invoke_an_appsync_template(templatePath, context)
 
     expect(result).toEqual({

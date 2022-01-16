@@ -11,7 +11,11 @@ describe('Tweet.profile.response template', () => {
     )
 
     const username = chance.guid()
-    const context = given.an_appsync_context({username}, {}, {id: username})
+    const context = given.an_appsync_context({
+      identity: {username},
+      args: {},
+      result: {id: username},
+    })
     const result = when.we_invoke_an_appsync_template(templatePath, context)
 
     expect(result).toEqual({
@@ -28,7 +32,11 @@ describe('Tweet.profile.response template', () => {
 
     const username = chance.guid()
     const id = chance.guid()
-    const context = given.an_appsync_context({username}, {}, {id})
+    const context = given.an_appsync_context({
+      identity: {username},
+      args: {},
+      result: {id},
+    })
     const result = when.we_invoke_an_appsync_template(templatePath, context)
 
     expect(result).toEqual({

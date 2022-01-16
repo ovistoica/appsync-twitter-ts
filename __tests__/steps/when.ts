@@ -14,6 +14,7 @@ import {
   QueryGetImageUploadUrl,
   QueryGetImageUploadUrlArgs,
   QueryGetMyProfile,
+  QueryGetMyTimeline,
   QueryGetTweets,
 } from '@types'
 
@@ -302,7 +303,7 @@ export const a_user_calls_getTweets = async ({
   nextToken?: string | null
 }) => {
   // language=GraphQL
-  const tweet = `query GetTweetsQUery($userId: ID!, $limit: Int!, $nextToken: String) {
+  const getTweets = `query GetTweetsQuery($userId: ID!, $limit: Int!, $nextToken: String) {
       getTweets(userId: $userId, limit: $limit, nextToken: $nextToken) {
           nextToken
           tweets {
@@ -330,10 +331,56 @@ export const a_user_calls_getTweets = async ({
     url,
     auth: user.accessToken,
     variables,
-    query: tweet,
+    query: getTweets,
   })
 
   console.log(`[${user.username}] - requested tweets`)
 
   return data.getTweets
+}
+
+export const a_user_calls_getMyTimeline = async ({
+  user,
+  limit,
+  nextToken,
+}: {
+  user: AuthenticatedUser
+  limit: number
+  nextToken?: string | null
+}) => {
+  // language=GraphQL
+  const getMyTimline = `query GetMyTimeline($limit: Int!, $nextToken: String) {
+      getMyTimeline( limit: $limit, nextToken: $nextToken) {
+          nextToken
+          tweets {
+              profile {
+                  id
+                  name
+                  screenName
+              }
+              createdAt
+              id
+              ... on Tweet {
+                  id
+                  likes
+                  replies
+                  retweets
+                  text
+              }
+          }
+      }}`
+
+  const {API_URL: url} = process.env
+  const variables = {limit, nextToken}
+
+  const data = await GraphQl<QueryGetMyTimeline>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: getMyTimline,
+  })
+
+  console.log(`[${user.username}] - fetched timeline`)
+
+  return data.getMyTimeline
 }
