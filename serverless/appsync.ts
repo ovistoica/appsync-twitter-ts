@@ -1,7 +1,7 @@
 import {GetAtt} from '@libs/utils'
 
 interface AppSyncMappingTemplate {
-  type: 'Query' | 'Mutation' | 'Tweet' | 'TimelinePage'
+  type: 'Query' | 'Mutation' | 'Tweet' | 'UnhydratedTweetsPage'
   field: string
   dataSource: string
   request?: false
@@ -83,6 +83,11 @@ export const appsyncConfig: AppSyncConfig = {
       dataSource: 'likeMutation',
       field: 'like',
     },
+    {
+      type: 'Mutation',
+      dataSource: 'unlikeMutation',
+      field: 'unlike',
+    },
 
     /* NESTED FIELDS */
     {
@@ -92,7 +97,7 @@ export const appsyncConfig: AppSyncConfig = {
     },
 
     {
-      type: 'TimelinePage',
+      type: 'UnhydratedTweetsPage',
       field: 'tweets',
       dataSource: 'tweetsTable',
     },
@@ -140,6 +145,25 @@ export const appsyncConfig: AppSyncConfig = {
           {
             Effect: 'Allow',
             Action: 'dynamodb:PutItem',
+            Resource: GetAtt('LikesTable.Arn'),
+          },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:UpdateItem',
+            Resource: [GetAtt('UsersTable.Arn'), GetAtt('TweetsTable.Arn')],
+          },
+        ],
+      },
+    },
+    {
+      type: 'AMAZON_DYNAMODB',
+      name: 'unlikeMutation',
+      config: {
+        tableName: {Ref: 'LikesTable'},
+        iamRoleStatements: [
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:DeleteItem',
             Resource: GetAtt('LikesTable.Arn'),
           },
           {

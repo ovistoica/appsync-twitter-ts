@@ -6,7 +6,7 @@ schema {
 type Query {
     getImageUploadUrl(extension: String, contentType: String): AWSURL!
 
-    getMyTimeline(limit: Int!, nextToken: String): TimelinePage!
+    getMyTimeline(limit: Int!, nextToken: String): UnhydratedTweetsPage!
 
     getMyProfile: MyProfile!
 
@@ -152,7 +152,7 @@ type TweetsPage {
     nextToken: String
 }
 
-type TimelinePage {
+type UnhydratedTweetsPage {
     tweets: [ITweet!]
     nextToken: String
 }
@@ -162,7 +162,7 @@ type ProfilesPage {
     nextToken: String
 }
 
-# Duplicated here to suppress linter errors
+# Duplicated fragments here to suppress linter errors
 fragment myProfileFields on MyProfile {
     bio
     birthdate
@@ -212,8 +212,7 @@ fragment tweetFields on Tweet {
     profile {
         ... iProfileFields
     }
-    createdAt
-    text
+    createdAt text
     replies
     likes
     retweets

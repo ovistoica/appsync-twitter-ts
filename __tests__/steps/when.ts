@@ -9,7 +9,9 @@ import velocityTemplate from 'amplify-velocity-template'
 import {
   AuthenticatedUser,
   MutationEditMyProfile,
+  MutationLike,
   MutationTweet,
+  MutationUnlike,
   ProfileInput,
   QueryGetImageUploadUrl,
   QueryGetImageUploadUrlArgs,
@@ -273,9 +275,10 @@ export const a_user_calls_getImageUploadUrl = async (
   extension: string,
   contentType: string,
 ) => {
-  const getImageUploadUrl = `query getImageUploadUrl($extension: String!, $contentType: String!) { 
-    getImageUploadUrl(extension: $extension, contentType: $contentType)
-    }`
+  // language=GraphQl
+  const getImageUploadUrl = `query getImageUploadUrl($extension: String!, $contentType: String!) {
+      getImageUploadUrl(extension: $extension, contentType: $contentType)
+  }`
 
   const variables: QueryGetImageUploadUrlArgs = {extension, contentType}
 
@@ -402,4 +405,52 @@ export const a_user_calls_getMyTimeline = async ({
   console.log(`[${user.username}] - fetched timeline`)
 
   return data.getMyTimeline
+}
+
+export const a_user_calls_like = async (
+  user: AuthenticatedUser,
+  tweetId: string,
+) => {
+  // language=GraphQL
+  const like = `mutation like($tweetId: ID!) {
+      like(tweetId: $tweetId)
+  }`
+
+  const {API_URL: url} = process.env
+  const variables = {tweetId}
+
+  const data = await GraphQl<MutationLike>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: like,
+  })
+
+  console.log(`[${user.username}] - posted new tweet`)
+
+  return data.like
+}
+
+export const a_user_calls_unlike = async (
+  user: AuthenticatedUser,
+  tweetId: string,
+) => {
+  // language=GraphQL
+  const unlike = `mutation unlike($tweetId: ID!) {
+      unlike(tweetId: $tweetId)
+  }`
+
+  const {API_URL: url} = process.env
+  const variables = {tweetId}
+
+  const data = await GraphQl<MutationUnlike>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: unlike,
+  })
+
+  console.log(`[${user.username}] - posted new tweet`)
+
+  return data.unlike
 }

@@ -2,7 +2,7 @@ require('dotenv').config()
 
 import * as given from '@test/steps/given'
 import * as when from '@test/steps/when'
-import {ITweet} from '@types'
+import {ITweet, Tweet} from '@types'
 // import * as then from '@test/steps/then'
 import {Chance} from 'chance'
 
@@ -88,6 +88,53 @@ describe('Given an authenticated user', () => {
           }),
         ).rejects.toMatchObject({
           message: expect.stringContaining('max limit is 25'),
+        })
+      })
+    })
+    describe('When he likes a tweet', () => {
+      beforeAll(async () => {
+        await when.a_user_calls_like(user, tweet.id)
+      })
+
+      it('Should see Tweet.liked as true', async () => {
+        const {tweets} = await when.a_user_calls_getMyTimeline({
+          user,
+          limit: 25,
+        })
+        expect(tweets).toHaveLength(1)
+        expect(tweets[0].id).toEqual(tweet.id)
+        expect((tweets[0] as Tweet).liked).toEqual(true)
+      })
+
+      it('Should not be able to like the same tweet a second time', async () => {
+        await expect(() =>
+          when.a_user_calls_like(user, tweet.id),
+        ).rejects.toMatchObject({
+          message: expect.stringMatching('DynamoDB transaction error'),
+        })
+      })
+
+      describe('When he unlikes the tweet', () => {
+        beforeAll(() => {
+          when.a_user_calls_unlike(user, tweet.id)
+        })
+
+        it('Should see Tweet.liked as false', async () => {
+          const {tweets} = await when.a_user_calls_getMyTimeline({
+            user,
+            limit: 25,
+          })
+          expect(tweets).toHaveLength(1)
+          expect(tweets[0].id).toEqual(tweet.id)
+          expect((tweets[0] as Tweet).liked).toEqual(false)
+        })
+
+        it('Should not be able to unlike the same tweet a second time', async () => {
+          await expect(() =>
+            when.a_user_calls_unlike(user, tweet.id),
+          ).rejects.toMatchObject({
+            message: expect.stringMatching('DynamoDB transaction error'),
+          })
         })
       })
     })
