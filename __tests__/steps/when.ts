@@ -1,6 +1,6 @@
 import {Context, PostConfirmationConfirmSignUpTriggerEvent} from 'aws-lambda'
 import {adminConfirmUser, createUser} from '@test/lib/cognito'
-import GraphQl from '@test/lib/graphql'
+import GraphQl, {registerFragment} from '@test/lib/graphql'
 import {main as configUserSignupHandler} from '@functions/confirm-user-signup/handler'
 import {main as getImageUploadUrlHandler} from '@functions/get-upload-url/handler'
 import {main as tweetHandler} from '@functions/tweet/handler'
@@ -19,6 +19,87 @@ import {
 } from '@types'
 
 const velocityMapper = require('amplify-appsync-simulator/lib/velocity/value-mapper/mapper')
+
+// language=GraphQl
+const myProfileFragment = `
+    fragment myProfileFields on MyProfile {
+        bio
+        birthdate
+        createdAt
+        followersCount
+        followingCount
+        id
+        likesCounts
+        location
+        name
+        screenName
+        tweetsCount
+        website
+        backgroundImageUrl
+        imageUrl
+    }`
+
+// language=GraphQl
+const otherProfileFragment = `
+    fragment otherProfileFields on OtherProfile {
+        id
+        name
+        screenName
+        imageUrl
+        backgroundImageUrl
+        bio
+        location
+        website
+        birthdate
+        createdAt
+        followersCount
+        followingCount
+        tweetsCount
+        likesCounts
+    }`
+
+// language=GraphQl
+const iProfileFragment = `
+    fragment iProfileFields on IProfile {
+        ... on MyProfile {
+            ... myProfileFields
+        }
+        ... on OtherProfile {
+            ... otherProfileFields
+        }
+    }
+`
+
+// language=GraphQl
+const tweetFragment = `
+    fragment tweetFields on Tweet {
+        id
+        profile {
+            ... iProfileFields
+        }
+        createdAt
+        text
+        replies
+        likes
+        retweets
+        liked
+    }
+`
+
+// language=GraphQl
+const iTweetFragment = `
+    fragment iTweetFields on ITweet {
+        ... on Tweet {
+            ...tweetFields
+        }
+    }
+`
+
+registerFragment('myProfileFields', myProfileFragment)
+registerFragment('otherProfileFields', otherProfileFragment)
+registerFragment('iProfileFields', iProfileFragment)
+registerFragment('tweetFields', tweetFragment)
+registerFragment('iTweetFields', iTweetFragment)
 
 export const we_invoke_confirmUserSignup = async (
   username: string,
@@ -109,20 +190,7 @@ export const a_user_calls_getMyProfile = async (user: AuthenticatedUser) => {
   // language=GraphQL
   const getMyProfile = `query MyQuery {
       getMyProfile {
-          bio
-          birthdate
-          createdAt
-          followersCount
-          followingCount
-          id
-          likesCounts
-          location
-          name
-          screenName
-          tweetsCount
-          website
-          backgroundImageUrl
-          imageUrl
+          ... myProfileFields
       }
   }`
   const {API_URL: url} = process.env
@@ -151,20 +219,7 @@ export const a_user_calls_editMyProfile = async (
   // language=GraphQL
   const editMyProfile = `mutation editMyProfile($input: ProfileInput!) {
       editMyProfile(newProfile: $input) {
-          bio
-          birthdate
-          createdAt
-          followersCount
-          followingCount
-          id
-          likesCounts
-          location
-          name
-          screenName
-          tweetsCount
-          website
-          backgroundImageUrl
-          imageUrl
+          ... myProfileFields
       }
   }`
   const {API_URL: url} = process.env
@@ -260,17 +315,7 @@ export const a_user_calls_tweet = async (
   // language=GraphQL
   const tweet = `mutation tweet($text: String!) {
       tweet(text: $text) {
-          id
-          createdAt
-          text
-          replies
-          likes
-          retweets
-          profile {
-              id
-              name
-              screenName
-          }
+          ... iTweetFields
       }
   }`
 
@@ -307,20 +352,7 @@ export const a_user_calls_getTweets = async ({
       getTweets(userId: $userId, limit: $limit, nextToken: $nextToken) {
           nextToken
           tweets {
-              profile {
-                  id
-                  name
-                  screenName
-              }
-              createdAt
-              id
-              ... on Tweet {
-                  id
-                  likes
-                  replies
-                  retweets
-                  text
-              }
+              ...iTweetFields
           }
       }}`
 
@@ -353,20 +385,7 @@ export const a_user_calls_getMyTimeline = async ({
       getMyTimeline( limit: $limit, nextToken: $nextToken) {
           nextToken
           tweets {
-              profile {
-                  id
-                  name
-                  screenName
-              }
-              createdAt
-              id
-              ... on Tweet {
-                  id
-                  likes
-                  replies
-                  retweets
-                  text
-              }
+              ... iTweetFields
           }
       }}`
 

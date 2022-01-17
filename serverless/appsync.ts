@@ -1,3 +1,5 @@
+import {GetAtt} from '@libs/utils'
+
 interface AppSyncMappingTemplate {
   type: 'Query' | 'Mutation' | 'Tweet' | 'TimelinePage'
   field: string
@@ -24,7 +26,11 @@ interface AppSyncConfig {
   mappingTemplatesLocation?: string
   mappingTemplates: AppSyncMappingTemplate[]
   dataSources: AppSyncDataSource[]
-  substitutions: {TweetsTable: {Ref: 'TweetsTable'}}
+  substitutions: {
+    TweetsTable: {Ref: 'TweetsTable'}
+    LikesTable: {Ref: 'LikesTable'}
+    UsersTable: {Ref: 'UsersTable'}
+  }
 }
 
 export const appsyncConfig: AppSyncConfig = {
@@ -72,6 +78,11 @@ export const appsyncConfig: AppSyncConfig = {
       dataSource: 'timelinesTable',
       field: 'getMyTimeline',
     },
+    {
+      type: 'Mutation',
+      dataSource: 'likeMutation',
+      field: 'like',
+    },
 
     /* NESTED FIELDS */
     {
@@ -85,6 +96,7 @@ export const appsyncConfig: AppSyncConfig = {
       field: 'tweets',
       dataSource: 'tweetsTable',
     },
+    {type: 'Tweet', field: 'liked', dataSource: 'likesTable'},
   ],
   dataSources: [
     {
@@ -113,6 +125,32 @@ export const appsyncConfig: AppSyncConfig = {
       },
     },
     {
+      type: 'AMAZON_DYNAMODB',
+      name: 'likesTable',
+      config: {
+        tableName: {Ref: 'LikesTable'},
+      },
+    },
+    {
+      type: 'AMAZON_DYNAMODB',
+      name: 'likeMutation',
+      config: {
+        tableName: {Ref: 'LikesTable'},
+        iamRoleStatements: [
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:PutItem',
+            Resource: GetAtt('LikesTable.Arn'),
+          },
+          {
+            Effect: 'Allow',
+            Action: 'dynamodb:UpdateItem',
+            Resource: [GetAtt('UsersTable.Arn'), GetAtt('TweetsTable.Arn')],
+          },
+        ],
+      },
+    },
+    {
       type: 'AWS_LAMBDA',
       name: 'getImageUploadUrlFunction',
       config: {
@@ -130,5 +168,7 @@ export const appsyncConfig: AppSyncConfig = {
 
   substitutions: {
     TweetsTable: {Ref: 'TweetsTable'},
+    LikesTable: {Ref: 'LikesTable'},
+    UsersTable: {Ref: 'UsersTable'},
   },
 }

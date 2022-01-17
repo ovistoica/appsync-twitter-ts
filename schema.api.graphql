@@ -161,3 +161,67 @@ type ProfilesPage {
     profiles: [IProfile!]
     nextToken: String
 }
+
+# Duplicated here to suppress linter errors
+fragment myProfileFields on MyProfile {
+    bio
+    birthdate
+    createdAt
+    followersCount
+    followingCount
+    id
+    likesCounts
+    location
+    name
+    screenName
+    tweetsCount
+    website
+    backgroundImageUrl
+    imageUrl
+}
+
+
+fragment otherProfileFields on OtherProfile {
+    id
+    name
+    screenName
+    imageUrl
+    backgroundImageUrl
+    bio
+    location
+    website
+    birthdate
+    createdAt
+    followersCount
+    followingCount
+    tweetsCount
+    likesCounts
+}
+
+fragment iProfileFields on IProfile {
+    ... on MyProfile {
+        ... myProfileFields
+    }
+    ... on OtherProfile {
+        ... otherProfileFields
+    }
+}
+
+fragment tweetFields on Tweet {
+    id
+    profile {
+        ... iProfileFields
+    }
+    createdAt
+    text
+    replies
+    likes
+    retweets
+    liked
+}
+
+fragment iTweetFields on ITweet {
+    ... on Tweet {
+        ...tweetFields
+    }
+}

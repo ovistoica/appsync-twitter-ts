@@ -9,7 +9,7 @@ $util.validate($isValidLimit, "max limit is 25")
     "expressionValues" : {
       ":userId" : $util.dynamodb.toDynamoDBJson($context.identity.username)
     }
-  }
+  },
   "nextToken" : $util.toJson($context.arguments.nextToken),
   "limit" : $util.toJson($context.arguments.limit),
   "scanIndexForward" : false,
