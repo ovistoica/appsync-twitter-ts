@@ -97,6 +97,10 @@ export type QueryGetMyTimeline = {
   getMyTimeline: UnhydratedTweetsPage
 }
 
+export type QueryGetLikes = {
+  getLikes: UnhydratedTweetsPage
+}
+
 export type MutationEditMyProfile = {
   editMyProfile: MyProfile
 }

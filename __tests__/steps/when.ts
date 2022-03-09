@@ -15,6 +15,7 @@ import {
   ProfileInput,
   QueryGetImageUploadUrl,
   QueryGetImageUploadUrlArgs,
+  QueryGetLikes,
   QueryGetMyProfile,
   QueryGetMyTimeline,
   QueryGetTweets,
@@ -426,7 +427,7 @@ export const a_user_calls_like = async (
     query: like,
   })
 
-  console.log(`[${user.username}] - posted new tweet`)
+  console.log(`[${user.username}] - liked tweet`)
 
   return data.like
 }
@@ -450,7 +451,37 @@ export const a_user_calls_unlike = async (
     query: unlike,
   })
 
-  console.log(`[${user.username}] - posted new tweet`)
+  console.log(`[${user.username}] - unliked tweet`)
 
   return data.unlike
+}
+
+export const a_user_calls_getLikes = async (
+  user: AuthenticatedUser,
+  userId: string,
+  limit: number,
+) => {
+  // language=GraphQL
+  const unlike = `query getLikes($userId: ID!, $limit: Int!, $nextToken: String) {
+      getLikes(userId: $userId, limit: $limit, nextToken: $nextToken){
+          nextToken,
+          tweets {
+              ...iTweetFields
+          }
+      }
+  }`
+
+  const {API_URL: url} = process.env
+  const variables = {userId, limit}
+
+  const data = await GraphQl<QueryGetLikes>({
+    url,
+    auth: user.accessToken,
+    variables,
+    query: unlike,
+  })
+
+  console.log(`[${user.username}] - fetched likes`)
+
+  return data.getLikes
 }

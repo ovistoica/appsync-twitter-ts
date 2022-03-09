@@ -79,6 +79,11 @@ export const appsyncConfig: AppSyncConfig = {
       field: 'getMyTimeline',
     },
     {
+      type: 'Query',
+      dataSource: 'likesTable',
+      field: 'getLikes',
+    },
+    {
       type: 'Mutation',
       dataSource: 'likeMutation',
       field: 'like',
