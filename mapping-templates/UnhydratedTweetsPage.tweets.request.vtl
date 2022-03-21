@@ -1,12 +1,12 @@
 #if ($context.source.tweets.size() == 0)
-  #return([])
+    #return([])
 #end
 
 #set ($tweets = [])
 #foreach ($item in $context.source.tweets)
-  #set ($tweet = {})
-  #set ($tweet.id = $item.tweetId)
-  $util.qr($tweets.add($util.dynamodb.toMapValues($tweet)))
+    #set ($tweet = {})
+    #set ($tweet.id = $item.tweetId)
+    $util.qr($tweets.add($util.dynamodb.toMapValues($tweet)))
 #end
 
 {

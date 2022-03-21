@@ -1,11 +1,17 @@
 import {GetAtt} from '@libs/utils'
 
 interface AppSyncMappingTemplate {
-  type: 'Query' | 'Mutation' | 'Tweet' | 'UnhydratedTweetsPage'
+  type:
+    | 'Query'
+    | 'Mutation'
+    | 'Tweet'
+    | 'UnhydratedTweetsPage'
+    | 'MyProfile'
+    | 'OtherProfile'
   field: string
   dataSource: string
-  request?: false
-  response?: false
+  request?: string | false
+  response?: string | false
 }
 
 interface AppSyncDataSource {
@@ -93,6 +99,13 @@ export const appsyncConfig: AppSyncConfig = {
       dataSource: 'unlikeMutation',
       field: 'unlike',
     },
+    {
+      type: 'Mutation',
+      field: 'retweet',
+      dataSource: 'retweetFunction',
+      request: false,
+      response: false,
+    },
 
     /* NESTED FIELDS */
     {
@@ -107,6 +120,14 @@ export const appsyncConfig: AppSyncConfig = {
       dataSource: 'tweetsTable',
     },
     {type: 'Tweet', field: 'liked', dataSource: 'likesTable'},
+    {type: 'MyProfile', field: 'tweets', dataSource: 'tweetsTable'},
+    {
+      type: 'OtherProfile',
+      field: 'tweets',
+      dataSource: 'tweetsTable',
+      request: 'MyProfile.tweets.request.vtl',
+      response: 'MyProfile.tweets.response.vtl',
+    },
   ],
   dataSources: [
     {
@@ -191,6 +212,13 @@ export const appsyncConfig: AppSyncConfig = {
       name: 'tweetFunction',
       config: {
         functionName: 'tweet',
+      },
+    },
+    {
+      type: 'AWS_LAMBDA',
+      name: 'retweetFunction',
+      config: {
+        functionName: 'retweet',
       },
     },
   ],

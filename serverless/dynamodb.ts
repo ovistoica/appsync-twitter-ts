@@ -113,4 +113,26 @@ export const dynamoDBResources: Record<string, Table> = {
       ],
     },
   },
+
+  RetweetsTable: {
+    Type: 'AWS::DynamoDB::Table',
+    Properties: {
+      BillingMode: 'PAY_PER_REQUEST',
+      KeySchema: [
+        {AttributeName: 'userId', KeyType: 'HASH'},
+        {AttributeName: 'tweetId', KeyType: 'RANGE'},
+      ],
+      AttributeDefinitions: [
+        {AttributeName: 'userId', AttributeType: 'S'},
+        {
+          AttributeName: 'tweetId',
+          AttributeType: 'S',
+        },
+      ],
+      Tags: [
+        {Key: 'Environment', Value: '${self:custom.stage}'},
+        {Key: 'Name', Value: 'twitter-likes-table'},
+      ],
+    },
+  },
 }

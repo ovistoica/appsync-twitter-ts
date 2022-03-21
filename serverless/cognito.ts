@@ -1,5 +1,5 @@
-import {TResource} from '../types'
-import {GetAtt} from '../src/libs/utils'
+import {TResource} from "@types"
+import {GetAtt} from "@libs/utils"
 
 export const cognitoResources: Record<string, TResource> = {
   CognitoUserPool: {
