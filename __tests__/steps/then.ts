@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import http from 'axios'
 import fs from 'fs'
+import get from 'lodash/get'
 
 export const user_exists_in_UsersTable = async (id: string) => {
   const {USERS_TABLE, AWS_REGION} = process.env
@@ -69,6 +70,37 @@ export const tweet_exists_in_TweetsTable = async (id: string) => {
   return resp.Item
 }
 
+export const retweet_exists_in_TweetsTable = async ({
+  userId,
+  tweetId,
+}: {
+  userId: string
+  tweetId: string
+}) => {
+  const {TWEETS_TABLE, AWS_REGION} = process.env
+
+  const DynamoDB = new AWS.DynamoDB.DocumentClient({region: AWS_REGION})
+
+  console.log(`Looking for retweet of [${tweetId}] in table [${TWEETS_TABLE}]`)
+
+  const resp = await DynamoDB.query({
+    TableName: TWEETS_TABLE,
+    IndexName: 'retweetsByCreator',
+    KeyConditionExpression: 'creator = :creator AND retweetOf = :tweetId',
+    ExpressionAttributeValues: {
+      ':creator': userId,
+      ':tweetId': tweetId,
+    },
+    Limit: 1,
+  }).promise()
+
+  const retweet = get(resp, 'Items.0')
+
+  expect(retweet).toBeTruthy()
+
+  return retweet
+}
+
 export const tweet_exists_in_TimelinesTable = async (
   userId: string,
   tweetId: string,
@@ -81,6 +113,34 @@ export const tweet_exists_in_TimelinesTable = async (
 
   const resp = await DynamoDB.get({
     TableName: TIMELINES_TABLE,
+    Key: {
+      tweetId,
+      userId,
+    },
+  }).promise()
+
+  expect(resp.Item).toBeTruthy()
+
+  return resp.Item
+}
+
+export const retweet_exists_in_RetweetsTable = async ({
+  userId,
+  tweetId,
+}: {
+  userId: string
+  tweetId: string
+}) => {
+  const {AWS_REGION, RETWEETS_TABLE} = process.env
+
+  const DynamoDB = new AWS.DynamoDB.DocumentClient({region: AWS_REGION})
+
+  console.log(
+    `Looking for retweet of [${tweetId}] for user [${userId} in table [${RETWEETS_TABLE}]`,
+  )
+
+  const resp = await DynamoDB.get({
+    TableName: RETWEETS_TABLE,
     Key: {
       tweetId,
       userId,
@@ -111,4 +171,29 @@ export const tweetsCount_is_updated_in_UsersTable = async (
   expect(resp.Item.tweetsCount).toBe(tweetsCount)
 
   return resp.Item
+}
+
+export const there_are_N_tweets_in_TimelinesTable = async (
+  userId: string,
+  count: number,
+) => {
+  const {AWS_REGION, TIMELINES_TABLE} = process.env
+
+  const DynamoDB = new AWS.DynamoDB.DocumentClient({region: AWS_REGION})
+
+  console.log(
+    `Looking for [${count}] tweets [${userId}] in table [${TIMELINES_TABLE}]`,
+  )
+
+  const resp = await DynamoDB.query({
+    TableName: TIMELINES_TABLE,
+    KeyConditionExpression: 'userId = :userId',
+    ExpressionAttributeValues: {
+      ':userId': userId,
+    },
+  }).promise()
+
+  expect(resp.Items).toHaveLength(count)
+
+  return resp.Items
 }

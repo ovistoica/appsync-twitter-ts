@@ -5,7 +5,7 @@ import {TweetType} from '@types'
 const DocumentClient = new DynamoDB.DocumentClient()
 const ulid = require('ulid')
 
-interface TweetHandlerEvent {
+interface RetweetHandlerEvent {
   identity: {
     username: string
   }
@@ -14,7 +14,7 @@ interface TweetHandlerEvent {
   }
 }
 
-const handler: Handler<TweetHandlerEvent> = async event => {
+const handler: Handler<RetweetHandlerEvent> = async event => {
   const {USERS_TABLE, TWEETS_TABLE, TIMELINES_TABLE, RETWEETS_TABLE} =
     process.env
   const {username} = event.identity
@@ -28,6 +28,7 @@ const handler: Handler<TweetHandlerEvent> = async event => {
       id: tweetId,
     },
   }).promise()
+  console.log('RESPONSE RETWEEEET', {getTweetResp})
 
   const tweet = (getTweetResp as any).tweet
 

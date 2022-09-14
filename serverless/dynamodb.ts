@@ -1,19 +1,19 @@
-interface KeyDefinition {
+export type KeyDefinition = {
   AttributeName: string
   KeyType: 'HASH' | 'RANGE'
 }
 
-interface AttributeDefinition {
+export type AttributeDefinition = {
   AttributeName: string
   AttributeType: 'S' | 'N'
 }
 
-interface Tag {
+export type Tag = {
   Key: string
   Value: string
 }
 
-interface Index {
+export type Index = {
   IndexName: string
   KeySchema: KeyDefinition[]
 
@@ -55,6 +55,7 @@ export const dynamoDBResources: Record<string, Table> = {
       AttributeDefinitions: [
         {AttributeName: 'id', AttributeType: 'S'},
         {AttributeName: 'creator', AttributeType: 'S'},
+        {AttributeName: 'retweetOf', AttributeType: 'S'},
       ],
       GlobalSecondaryIndexes: [
         {
@@ -62,6 +63,14 @@ export const dynamoDBResources: Record<string, Table> = {
           KeySchema: [
             {AttributeName: 'creator', KeyType: 'HASH'},
             {AttributeName: 'id', KeyType: 'RANGE'},
+          ],
+          Projection: {ProjectionType: 'ALL'},
+        },
+        {
+          IndexName: 'retweetsByCreator',
+          KeySchema: [
+            {AttributeName: 'creator', KeyType: 'HASH'},
+            {AttributeName: 'retweetOf', KeyType: 'RANGE'},
           ],
           Projection: {ProjectionType: 'ALL'},
         },

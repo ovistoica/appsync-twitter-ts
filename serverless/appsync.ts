@@ -1,5 +1,7 @@
 import {GetAtt} from '@libs/utils'
 
+console.log("sth")
+
 interface AppSyncMappingTemplate {
   type:
     | 'Query'
@@ -8,6 +10,7 @@ interface AppSyncMappingTemplate {
     | 'UnhydratedTweetsPage'
     | 'MyProfile'
     | 'OtherProfile'
+    | 'Retweet'
   field: string
   dataSource: string
   request?: string | false
@@ -114,6 +117,18 @@ export const appsyncConfig: AppSyncConfig = {
       dataSource: 'usersTable',
     },
 
+    {
+      type: 'Retweet',
+      field: 'profile',
+      dataSource: 'usersTable',
+      request: 'Tweet.profile.request.vtl',
+      response: 'Tweet.profile.response.vtl',
+    },
+    {
+      type: 'Retweet',
+      field: 'retweetOf',
+      dataSource: 'tweetsTable',
+    },
     {
       type: 'UnhydratedTweetsPage',
       field: 'tweets',
